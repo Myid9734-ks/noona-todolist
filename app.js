@@ -23,16 +23,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let todos = [];
-let currentFilter = 'all';
 let editingId = null;
 
 const todoInput = document.getElementById('todoInput');
 const addBtn = document.getElementById('addBtn');
 const todoList = document.getElementById('todoList');
-const filterBtns = document.querySelectorAll('.filter-btn');
-const totalCount = document.getElementById('totalCount');
-const activeCount = document.getElementById('activeCount');
-const completedCount = document.getElementById('completedCount');
 
 loadTodos();
 
@@ -41,15 +36,6 @@ todoInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         addTodo();
     }
-});
-
-filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        renderTodos();
-    });
 });
 
 async function addTodo() {
@@ -137,18 +123,10 @@ function cancelEdit() {
 }
 
 function renderTodos() {
-    let filteredTodos = todos;
-
-    if (currentFilter === 'active') {
-        filteredTodos = todos.filter(todo => !todo.completed);
-    } else if (currentFilter === 'completed') {
-        filteredTodos = todos.filter(todo => todo.completed);
-    }
-
-    if (filteredTodos.length === 0) {
+    if (todos.length === 0) {
         todoList.innerHTML = '<li class="empty-state">할일이 없습니다.</li>';
     } else {
-        todoList.innerHTML = filteredTodos.map(todo => {
+        todoList.innerHTML = todos.map(todo => {
             if (editingId === todo.id) {
                 return `
                     <li class="todo-item ${todo.completed ? 'completed' : ''}">
@@ -183,18 +161,6 @@ function renderTodos() {
             }
         }).join('');
     }
-
-    updateStats();
-}
-
-function updateStats() {
-    const total = todos.length;
-    const active = todos.filter(todo => !todo.completed).length;
-    const completed = todos.filter(todo => todo.completed).length;
-
-    totalCount.textContent = `전체: ${total}`;
-    activeCount.textContent = `진행중: ${active}`;
-    completedCount.textContent = `완료: ${completed}`;
 }
 
 function loadTodos() {
